@@ -19,13 +19,144 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- In-page "install this app" prompt (player portal only) -->
+    <div id="pwa-install" hidden>
+      <button id="pwa-install-btn" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span id="pwa-install-label">Install app</span>
+      </button>
+      <button id="pwa-install-dismiss" type="button" aria-label="Dismiss">&times;</button>
+    </div>
+    <div id="pwa-ios-sheet" hidden>
+      <div id="pwa-ios-card">
+        <p><strong>Add PredictSim to your Home Screen</strong></p>
+        <ol>
+          <li>Tap the <strong>Share</strong> button in Safari's toolbar</li>
+          <li>Choose <strong>Add to Home Screen</strong></li>
+          <li>Tap <strong>Add</strong></li>
+        </ol>
+        <button id="pwa-ios-close" type="button">Got it</button>
+      </div>
+    </div>
+
+    <style>
+      #pwa-install {
+        position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%);
+        z-index: 2147483000; display: flex; align-items: center; gap: 4px;
+        background: #ffffff; border: 1px solid #e3e6ec; border-radius: 999px;
+        box-shadow: 0 6px 24px rgba(16, 24, 40, 0.16); padding: 4px 4px 4px 4px;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      }
+      #pwa-install-btn {
+        display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+        border: 0; border-radius: 999px; padding: 9px 16px;
+        background: #2563eb; color: #fff; font-size: 14px; font-weight: 600;
+      }
+      #pwa-install-btn:active { background: #1d4ed8; }
+      #pwa-install-dismiss {
+        border: 0; background: transparent; cursor: pointer; color: #667085;
+        font-size: 20px; line-height: 1; padding: 4px 10px;
+      }
+      #pwa-ios-sheet {
+        position: fixed; inset: 0; z-index: 2147483001; display: flex;
+        align-items: flex-end; justify-content: center;
+        background: rgba(16, 24, 40, 0.45);
+      }
+      #pwa-ios-card {
+        background: #fff; border-radius: 16px 16px 0 0; max-width: 420px; width: 100%;
+        padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        color: #101828;
+      }
+      #pwa-ios-card p { margin: 0 0 12px; font-size: 15px; }
+      #pwa-ios-card ol { margin: 0 0 16px; padding-left: 20px; font-size: 14px; line-height: 1.7; color: #344054; }
+      #pwa-ios-close {
+        width: 100%; border: 0; border-radius: 10px; padding: 12px;
+        background: #2563eb; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+      }
+      @media (prefers-color-scheme: dark) {
+        #pwa-install { background: #1a1d24; border-color: #2a2e37; }
+        #pwa-install-dismiss { color: #98a2b3; }
+        #pwa-ios-card { background: #1a1d24; color: #f2f4f7; }
+        #pwa-ios-card ol { color: #cdd2dc; }
+      }
+    </style>
+
     <script type="module" src="/src/main.tsx"></script>
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+      (function () {
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('/sw.js').catch(function () {});
+          });
+        }
+
+        var bar = document.getElementById('pwa-install');
+        var btn = document.getElementById('pwa-install-btn');
+        var label = document.getElementById('pwa-install-label');
+        var dismiss = document.getElementById('pwa-install-dismiss');
+        var sheet = document.getElementById('pwa-ios-sheet');
+        var sheetClose = document.getElementById('pwa-ios-close');
+        var deferred = null;
+        var DISMISS_KEY = 'pwa-install-dismissed';
+
+        function installed() {
+          return (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true
+          );
+        }
+        function dismissed() {
+          try { return localStorage.getItem(DISMISS_KEY) === '1'; } catch (e) { return false; }
+        }
+        function isIOS() {
+          var ua = navigator.userAgent || '';
+          var iOS = /iPad|iPhone|iPod/.test(ua);
+          var iPadOS = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+          var safari = /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(ua);
+          return (iOS || iPadOS) && safari;
+        }
+        function show(text) {
+          if (installed() || dismissed()) return;
+          if (text) label.textContent = text;
+          bar.hidden = false;
+        }
+        function hide() { bar.hidden = true; }
+
+        window.addEventListener('beforeinstallprompt', function (e) {
+          e.preventDefault();
+          deferred = e;
+          show('Install app');
         });
-      }
+
+        window.addEventListener('appinstalled', function () {
+          hide();
+          try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+        });
+
+        btn.addEventListener('click', function () {
+          if (deferred) {
+            deferred.prompt();
+            deferred.userChoice.finally(function () { deferred = null; hide(); });
+          } else if (isIOS()) {
+            sheet.hidden = false;
+          }
+        });
+
+        dismiss.addEventListener('click', function () {
+          hide();
+          try { localStorage.setItem(DISMISS_KEY, '1'); } catch (e) {}
+        });
+
+        sheetClose.addEventListener('click', function () { sheet.hidden = true; });
+        sheet.addEventListener('click', function (e) { if (e.target === sheet) sheet.hidden = true; });
+
+        // iOS never fires beforeinstallprompt — surface the button directly.
+        if (isIOS()) show('Add to Home Screen');
+      })();
     </script>
   </body>
 </html>
