@@ -2,9 +2,20 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "_comment": "Player portal: only the endpoints a Player uses are proxied. Anything else under /api/* falls through to index.html and never reaches a backend.",
   "rewrites": [
-    { "source": "/api/core/:path*", "destination": "https://predictsim-core-service.onrender.com/:path*" },
-    { "source": "/api/prediction/:path*", "destination": "https://predictsim-prediction-service.onrender.com/:path*" },
+    { "source": "/api/core/auth/:path*", "destination": "https://predictsim-core-service.onrender.com/auth/:path*" },
+    { "source": "/api/core/users/:id", "destination": "https://predictsim-core-service.onrender.com/users/:id" },
+    { "source": "/api/core/rates/meta", "destination": "https://predictsim-core-service.onrender.com/rates/meta" },
+    { "source": "/api/core/rates/me", "destination": "https://predictsim-core-service.onrender.com/rates/me" },
+    { "source": "/api/core/rates/me/:path*", "destination": "https://predictsim-core-service.onrender.com/rates/me/:path*" },
+    { "source": "/api/core/ledger", "destination": "https://predictsim-core-service.onrender.com/ledger" },
+    { "source": "/api/core/predictions/me", "destination": "https://predictsim-core-service.onrender.com/predictions/me" },
+    { "source": "/api/core/token-requests", "destination": "https://predictsim-core-service.onrender.com/token-requests" },
+    { "source": "/api/core/token-requests/me", "destination": "https://predictsim-core-service.onrender.com/token-requests/me" },
+    { "source": "/api/core/token-requests/:id/cancel", "destination": "https://predictsim-core-service.onrender.com/token-requests/:id/cancel" },
+    { "source": "/api/prediction/games/active", "destination": "https://predictsim-prediction-service.onrender.com/games/active" },
+    { "source": "/api/prediction/predictions", "destination": "https://predictsim-prediction-service.onrender.com/predictions" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
