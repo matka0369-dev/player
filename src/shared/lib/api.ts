@@ -141,8 +141,17 @@ export const api = {
 
   // ---- Token history + requests ----
 
-  ledger: (limit?: number) =>
-    request<LedgerEntry[]>(`/ledger${limit ? `?limit=${limit}` : ''}`),
+  // Signature matches the canonical client's (LedgerCard calls it the same
+  // way regardless of portal) even though a Player never has agents to
+  // filter by — only `limit` is ever actually passed here.
+  ledger: (opts?: { limit?: number; date?: string; agentId?: string }) => {
+    const qs = new URLSearchParams();
+    if (opts?.limit) qs.set('limit', String(opts.limit));
+    if (opts?.date) qs.set('date', opts.date);
+    if (opts?.agentId) qs.set('agentId', opts.agentId);
+    const s = qs.toString();
+    return request<LedgerEntry[]>(`/ledger${s ? `?${s}` : ''}`);
+  },
 
   /** A Player asking for a balance change. One open request per kind at a time. */
   createTokenRequest: (body: { kind: TokenRequestKind; amount: number; note?: string }) =>
