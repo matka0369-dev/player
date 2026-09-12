@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Alert,
   Card,
@@ -14,13 +13,15 @@ import {
   TokenRequestsCard,
   api,
   useAuth,
+  useRoutedTabs,
   type NavItem,
   type UserSummary,
 } from './shared';
 
 // 'predict' listed first so it's the tab Layout lands a Player on (it
 // defaults activeId to nav[0]) — the games grid is this app's home screen,
-// not the account-stats overview.
+// not the account-stats overview. Its own "/predict/:gameId" nested route
+// (PredictForm) still resolves to this same tab — see useRoutedTabs.
 const NAV: NavItem[] = [
   { id: 'predict', label: 'Predict' },
   { id: 'overview', label: 'Overview' },
@@ -32,31 +33,9 @@ const NAV: NavItem[] = [
   { id: 'about', label: 'About your tokens' },
 ];
 
-// Every tab is its own URL — 'predict' owns both "/" (the games grid) and
-// "/predict/:gameId" (PredictForm's own nested route for the bet form), so
-// picking a game there stays on the "predict" tab as far as the sidebar and
-// TabContext are concerned.
-const PATH_FOR_TAB: Record<string, string> = {
-  predict: '/',
-  overview: '/overview',
-  rates: '/rates',
-  'my-predictions': '/my-predictions',
-  requests: '/requests',
-  ledger: '/ledger',
-  sessions: '/sessions',
-  about: '/about',
-};
-
-function tabForPath(pathname: string): string | undefined {
-  if (pathname === '/' || pathname.startsWith('/predict/')) return 'predict';
-  const id = pathname.slice(1);
-  return id in PATH_FOR_TAB ? id : undefined;
-}
-
 export function Dashboard() {
   const { user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const { activeId, onSelectTab } = useRoutedTabs('predict');
   const [me, setMe] = useState<UserSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Bumped after placing a prediction so the ledger and history tabs pick up
@@ -87,8 +66,8 @@ export function Dashboard() {
       title={`Welcome, ${user?.username ?? 'Player'}`}
       subtitle="View your account, balance, and prediction activity."
       nav={NAV}
-      activeId={tabForPath(location.pathname)}
-      onSelectTab={(id) => navigate(PATH_FOR_TAB[id] ?? '/')}
+      activeId={activeId}
+      onSelectTab={onSelectTab}
     >
       {error && <Alert tone="error">{error}</Alert>}
 

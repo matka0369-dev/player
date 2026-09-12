@@ -141,9 +141,6 @@ export const api = {
 
   // ---- Token history + requests ----
 
-  // Signature matches the canonical client's (LedgerCard calls it the same
-  // way regardless of portal) even though a Player never has agents to
-  // filter by — only `limit` is ever actually passed here.
   ledger: (opts?: { limit?: number; date?: string; agentId?: string }) => {
     const qs = new URLSearchParams();
     if (opts?.limit) qs.set('limit', String(opts.limit));
