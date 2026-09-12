@@ -17,10 +17,13 @@ import {
   type UserSummary,
 } from './shared';
 
+// 'predict' listed first so it's the tab Layout lands a Player on (it
+// defaults activeId to nav[0]) — the games grid is this app's home screen,
+// not the account-stats overview.
 const NAV: NavItem[] = [
+  { id: 'predict', label: 'Predict' },
   { id: 'overview', label: 'Overview' },
   { id: 'rates', label: 'Your rates' },
-  { id: 'predict', label: 'Predict' },
   { id: 'my-predictions', label: 'My predictions' },
   { id: 'requests', label: 'Request tokens' },
   { id: 'ledger', label: 'Token history' },
