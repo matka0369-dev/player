@@ -83,6 +83,10 @@
         #pwa-ios-card { background: #1a1d24; color: #f2f4f7; }
         #pwa-ios-card ol { color: #cdd2dc; }
       }
+      /* The [hidden] attribute selector loses to the #id rules above on
+         specificity, so setting `.hidden = true` from JS did nothing visually
+         without this override. */
+      #pwa-install[hidden], #pwa-ios-sheet[hidden] { display: none !important; }
     </style>
 
     <script type="module" src="/src/main.tsx"></script>
@@ -114,14 +118,13 @@
         }
         function isIOS() {
           var ua = navigator.userAgent || '';
-          // Genuine iPhone/iPod, or an iPad (incl. iPadOS reporting as Mac:
-          // Macs never expose multi-touch, so MacIntel + touch points == iPad).
-          var iPhone = /iPhone|iPod/.test(ua);
-          var iPad =
-            /iPad/.test(ua) ||
-            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+          // Genuine iPhone/iPod/iPad UA only. A MacIntel + touch-points check
+          // was here for iPadOS-as-Mac, but some Macs' trackpads make Chrome
+          // report maxTouchPoints > 1 too, which showed this to plain desktop
+          // Mac users — false positives are worse than missing real iPads.
+          var iOSDevice = /iPhone|iPod|iPad/.test(ua);
           var notOtherBrowser = !/CriOS|FxiOS|EdgiOS|Chrome|Android/.test(ua);
-          return (iPhone || iPad) && notOtherBrowser;
+          return iOSDevice && notOtherBrowser;
         }
         function show(text) {
           if (installed() || dismissed()) return;
