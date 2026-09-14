@@ -61,10 +61,16 @@ export function Dashboard() {
     setActivityVersion((v) => v + 1);
   }
 
+  // The Predict tab (home + its /predict/:gameId page) carries its own
+  // heading — each game's own card/name, and now open+close times right on
+  // it — so the generic "Welcome, x" header above it is redundant there.
+  // Every other tab keeps it.
+  const isPredictTab = activeId === 'predict';
+
   return (
     <Layout
-      title={`Welcome, ${user?.username ?? 'Player'}`}
-      subtitle="View your account, balance, and prediction activity."
+      title={isPredictTab ? undefined : `Welcome, ${user?.username ?? 'Player'}`}
+      subtitle={isPredictTab ? undefined : 'View your account, balance, and prediction activity.'}
       nav={NAV}
       activeId={activeId}
       onSelectTab={onSelectTab}
