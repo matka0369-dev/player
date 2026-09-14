@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   Card,
@@ -13,28 +13,34 @@ import {
   TokenRequestsCard,
   api,
   useAuth,
+  useLang,
   useRoutedTabs,
   type NavItem,
   type UserSummary,
 } from './shared';
 
-// 'predict' listed first so it's the tab Layout lands a Player on (it
-// defaults activeId to nav[0]) — the games grid is this app's home screen,
-// not the account-stats overview. Its own "/predict/:gameId" nested route
-// (PredictForm) still resolves to this same tab — see useRoutedTabs.
-const NAV: NavItem[] = [
-  { id: 'predict', label: 'Predict' },
-  { id: 'overview', label: 'Overview' },
-  { id: 'rates', label: 'Your rates' },
-  { id: 'my-predictions', label: 'My predictions' },
-  { id: 'requests', label: 'Request tokens' },
-  { id: 'ledger', label: 'Token history' },
-  { id: 'sessions', label: 'Your sessions' },
-  { id: 'about', label: 'About your tokens' },
-];
-
 export function Dashboard() {
   const { user } = useAuth();
+  const { t } = useLang();
+
+  // 'predict' listed first so it's the tab Layout lands a Player on (it
+  // defaults activeId to nav[0]) — the games grid is this app's home
+  // screen, not the account-stats overview. Its own "/predict/:gameId"
+  // nested route (PredictForm) still resolves to this same tab — see
+  // useRoutedTabs.
+  const NAV: NavItem[] = useMemo(
+    () => [
+      { id: 'predict', label: t('nav.predict', 'Predict') },
+      { id: 'overview', label: t('nav.overview', 'Overview') },
+      { id: 'rates', label: t('nav.yourRates', 'Your rates') },
+      { id: 'my-predictions', label: t('nav.myPredictions', 'My predictions') },
+      { id: 'requests', label: t('nav.requestTokens', 'Request tokens') },
+      { id: 'ledger', label: t('nav.tokenHistory', 'Token history') },
+      { id: 'sessions', label: t('nav.yourSessions', 'Your sessions') },
+      { id: 'about', label: t('nav.aboutTokens', 'About your tokens') },
+    ],
+    [t],
+  );
   const { activeId, onSelectTab } = useRoutedTabs('predict');
   const [me, setMe] = useState<UserSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -69,8 +75,8 @@ export function Dashboard() {
 
   return (
     <Layout
-      title={isPredictTab ? undefined : `Welcome, ${user?.username ?? 'Player'}`}
-      subtitle={isPredictTab ? undefined : 'View your account, balance, and prediction activity.'}
+      title={isPredictTab ? undefined : `${t('dash.welcome', 'Welcome')}, ${user?.username ?? 'Player'}`}
+      subtitle={isPredictTab ? undefined : t('dash.subtitle', 'View your account, balance, and prediction activity.')}
       nav={NAV}
       activeId={activeId}
       onSelectTab={onSelectTab}
@@ -80,20 +86,23 @@ export function Dashboard() {
       <Section id="overview">
         <div className="grid grid--stats">
           <Stat
-            label="Main balance"
+            label={t('dash.mainBalance', 'Main balance')}
             value={me ? me.balance.toLocaleString() : '—'}
-            hint="Spent first when you predict"
+            hint={t('dash.mainBalanceHint', 'Spent first when you predict')}
           />
           <Stat
-            label="Winnings"
+            label={t('dash.winnings', 'Winnings')}
             value={me ? me.winningsBalance.toLocaleString() : '—'}
-            hint="Where payouts land — spendable once main runs out"
+            hint={t('dash.winningsHint', 'Where payouts land — spendable once main runs out')}
           />
-          <Stat label="Account" value={me?.isActive ? 'Active' : 'Disabled'} />
           <Stat
-            label="Your agent"
+            label={t('dash.account', 'Account')}
+            value={me?.isActive ? t('dash.active', 'Active') : t('dash.disabled', 'Disabled')}
+          />
+          <Stat
+            label={t('dash.yourAgent', 'Your agent')}
             value={me?.agent?.username ?? '—'}
-            hint="Who to contact for support"
+            hint={t('dash.yourAgentHint', 'Who to contact for support')}
           />
         </div>
       </Section>
@@ -120,8 +129,8 @@ export function Dashboard() {
 
       <Section id="ledger">
         <LedgerCard
-          title="Token history"
-          desc="Every change to your balance."
+          title={t('nav.tokenHistory', 'Token history')}
+          desc={t('dash.tokenHistoryDesc', 'Every change to your balance.')}
           showAccount={false}
           refreshKey={activityVersion}
         />
@@ -132,12 +141,12 @@ export function Dashboard() {
       </Section>
 
       <Section id="about">
-        <Card title="About your tokens">
+        <Card title={t('dash.aboutTokensTitle', 'About your tokens')}>
           <div className="note">
-            Tokens are a closed-loop simulation currency. They cannot be purchased, sold, redeemed,
-            transferred, or converted into anything of value, and there are no deposits or
-            withdrawals of any kind. Every change to your balance is recorded in an auditable
-            ledger.
+            {t(
+              'dash.aboutTokensBody',
+              'Tokens are a closed-loop simulation currency. They cannot be purchased, sold, redeemed, transferred, or converted into anything of value, and there are no deposits or withdrawals of any kind. Every change to your balance is recorded in an auditable ledger.',
+            )}
           </div>
         </Card>
       </Section>
