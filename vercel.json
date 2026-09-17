@@ -13,7 +13,9 @@
     { "source": "/api/core/token-requests", "destination": "https://predictsim-core-service.onrender.com/token-requests" },
     { "source": "/api/core/token-requests/me", "destination": "https://predictsim-core-service.onrender.com/token-requests/me" },
     { "source": "/api/core/token-requests/:id/cancel", "destination": "https://predictsim-core-service.onrender.com/token-requests/:id/cancel" },
+    { "source": "/api/core/token-requests/:id/image", "destination": "https://predictsim-core-service.onrender.com/token-requests/:id/image" },
     { "source": "/api/prediction/games/active", "destination": "https://predictsim-prediction-service.onrender.com/games/active" },
+    { "source": "/api/prediction/games/:id/history", "destination": "https://predictsim-prediction-service.onrender.com/games/:id/history" },
     { "source": "/api/prediction/predictions", "destination": "https://predictsim-prediction-service.onrender.com/predictions" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
