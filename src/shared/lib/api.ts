@@ -118,29 +118,39 @@ async function predictionRequest<T>(path: string, init?: RequestInit): Promise<T
   return (text ? JSON.parse(text) : undefined) as T;
 }
 
+// 2026-09-17: Player now talks to prediction-service (Go) exclusively —
+// zero HTTP contact with core-service (Node), which still serves the other
+// three portals. Everything below this app's Dashboard actually renders
+// (auth, rates, ledger, its own predictions/token-requests, plus getUser
+// for its own balance) calls predictionRequest(); every method still
+// calling request() is bundled shared-component code no Player route
+// reaches — see ARCHITECTURE.md and Dashboard.tsx's own import list.
 export const api = {
   // `identifier` is an email address or a username — the server accepts both.
   login: (identifier: string, password: string) =>
-    request<{ user: AuthUser }>('/auth/login', {
+    predictionRequest<{ user: AuthUser }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ identifier, password }),
     }),
 
-  logout: () => request<{ success: boolean }>('/auth/logout', { method: 'POST' }),
+  logout: () => predictionRequest<{ success: boolean }>('/auth/logout', { method: 'POST' }),
 
-  me: () => request<{ user: AuthUser }>('/auth/me'),
+  me: () => predictionRequest<{ user: AuthUser }>('/auth/me'),
 
-  mySessions: () => request<SessionInfo[]>('/auth/sessions'),
+  mySessions: () => predictionRequest<SessionInfo[]>('/auth/sessions'),
 
   revokeMySession: (id: string) =>
-    request<{ success: boolean }>(`/auth/sessions/${id}`, { method: 'DELETE' }),
+    predictionRequest<{ success: boolean }>(`/auth/sessions/${id}`, { method: 'DELETE' }),
 
   revokeMyOtherSessions: () =>
-    request<{ success: boolean }>('/auth/sessions', { method: 'DELETE' }),
+    predictionRequest<{ success: boolean }>('/auth/sessions', { method: 'DELETE' }),
 
   listUsers: () => request<UserSummary[]>('/users'),
 
-  getUser: (id: string) => request<UserSummary>(`/users/${id}`),
+  // Self-scoped on this service — Go 404s any id but the caller's own. The
+  // only real caller is PredictForm, reading its own balance, which is
+  // always `user.id`.
+  getUser: (id: string) => predictionRequest<UserSummary>(`/users/${id}`),
 
   checkUsername: (username: string) =>
     request<{ available: boolean }>(
@@ -200,9 +210,9 @@ export const api = {
 
   // ---- Rate cards ----
 
-  rateMeta: () => request<RateMeta>('/rates/meta'),
+  rateMeta: () => predictionRequest<RateMeta>('/rates/meta'),
 
-  myRates: () => request<MyRates>('/rates/me'),
+  myRates: () => predictionRequest<MyRates>('/rates/me'),
 
   updateDefaultRates: (entries: { betType: string; multiplier: number }[]) =>
     request<RateEntry[]>('/rates/me/default', {
@@ -226,7 +236,7 @@ export const api = {
     if (opts?.date) qs.set('date', opts.date);
     if (opts?.agentId) qs.set('agentId', opts.agentId);
     const s = qs.toString();
-    return request<LedgerEntry[]>(`/ledger${s ? `?${s}` : ''}`);
+    return predictionRequest<LedgerEntry[]>(`/ledger${s ? `?${s}` : ''}`);
   },
 
   grantTokens: (userId: string, amount: number, note?: string) =>
@@ -335,18 +345,19 @@ export const api = {
    *  or less — see ARCHITECTURE.md "Hard safety boundaries" (2026-09-15
    *  revision). */
   createTokenRequest: (body: { kind: TokenRequestKind; amount: number; note?: string; image?: string }) =>
-    request<TokenRequest>('/token-requests', { method: 'POST', body: JSON.stringify(body) }),
+    predictionRequest<TokenRequest>('/token-requests', { method: 'POST', body: JSON.stringify(body) }),
 
-  myTokenRequests: () => request<TokenRequest[]>('/token-requests/me'),
+  myTokenRequests: () => predictionRequest<TokenRequest[]>('/token-requests/me'),
 
-  /** Not a `request()` call — this is a URL to hand an `<img>` tag directly,
-   *  which sends the session cookie itself same as any other same-origin
-   *  request. Only meaningful when the request's `imageMimeType` is set. */
-  tokenRequestImageUrl: (id: string) => `${BASE_URL}/token-requests/${id}/image`,
+  /** Not a `request()`/`predictionRequest()` call — this is a URL to hand an
+   *  `<img>` tag directly, which sends the session cookie itself same as any
+   *  other same-origin request. Only meaningful when the request's
+   *  `imageMimeType` is set. */
+  tokenRequestImageUrl: (id: string) => `${PREDICTION_BASE_URL}/token-requests/${id}/image`,
 
   /** A Player withdrawing their own request before anyone acts on it. */
   cancelTokenRequest: (id: string) =>
-    request<TokenRequest>(`/token-requests/${id}/cancel`, { method: 'POST' }),
+    predictionRequest<TokenRequest>(`/token-requests/${id}/cancel`, { method: 'POST' }),
 
   /** The review queue — an Agent/Admin (or their staff) sees their own subtree. */
   tokenRequestQueue: (status?: TokenRequestStatus) =>
@@ -380,7 +391,7 @@ export const api = {
 
   // ---- Predictions (core-service: read-only views) ----
 
-  myPredictions: () => request<Prediction[]>('/predictions/me'),
+  myPredictions: () => predictionRequest<Prediction[]>('/predictions/me'),
 
   subtreePredictions: () => request<Prediction[]>('/predictions'),
 
