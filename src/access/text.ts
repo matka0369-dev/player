@@ -24,7 +24,8 @@ export type AccessKey =
   | 'notYou'
   | 'tryAgain'
   | 'wait'
-  | 'agentLoadFailed';
+  | 'agentLoadFailed'
+  | 'installApp';
 
 type Dict = Record<AccessKey, string>;
 
@@ -46,6 +47,7 @@ const en: Dict = {
   tryAgain: 'Try again',
   wait: 'Please wait…',
   agentLoadFailed: 'Could not load your agent. Check your internet and try again.',
+  installApp: 'Install the app',
 };
 
 const hi: Dict = {
@@ -66,6 +68,7 @@ const hi: Dict = {
   tryAgain: 'फिर कोशिश करें',
   wait: 'कृपया रुकें…',
   agentLoadFailed: 'आपके एजेंट की जानकारी नहीं मिली। इंटरनेट जाँचें और फिर कोशिश करें।',
+  installApp: 'ऐप इंस्टॉल करें',
 };
 
 const mr: Dict = {
@@ -86,6 +89,7 @@ const mr: Dict = {
   tryAgain: 'पुन्हा प्रयत्न करा',
   wait: 'कृपया थांबा…',
   agentLoadFailed: 'तुमच्या एजंटची माहिती मिळाली नाही. इंटरनेट तपासा आणि पुन्हा प्रयत्न करा.',
+  installApp: 'अ‍ॅप इन्स्टॉल करा',
 };
 
 const te: Dict = {
@@ -106,6 +110,7 @@ const te: Dict = {
   tryAgain: 'మళ్లీ ప్రయత్నించండి',
   wait: 'దయచేసి వేచి ఉండండి…',
   agentLoadFailed: 'మీ ఏజెంట్ వివరాలు లోడ్ కాలేదు. ఇంటర్నెట్ చూసి మళ్లీ ప్రయత్నించండి.',
+  installApp: 'యాప్ ఇన్‌స్టాల్ చేయండి',
 };
 
 const ta: Dict = {
@@ -126,6 +131,7 @@ const ta: Dict = {
   tryAgain: 'மீண்டும் முயற்சிக்கவும்',
   wait: 'தயவுசெய்து காத்திருக்கவும்…',
   agentLoadFailed: 'உங்கள் முகவரின் விவரங்கள் கிடைக்கவில்லை. இணையத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.',
+  installApp: 'செயலியை நிறுவவும்',
 };
 
 const kn: Dict = {
@@ -146,6 +152,7 @@ const kn: Dict = {
   tryAgain: 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ',
   wait: 'ದಯವಿಟ್ಟು ನಿರೀಕ್ಷಿಸಿ…',
   agentLoadFailed: 'ನಿಮ್ಮ ಏಜೆಂಟ್ ವಿವರ ಸಿಗಲಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.',
+  installApp: 'ಆ್ಯಪ್ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ',
 };
 
 const DICTS: Record<Lang, Dict> = { en, hi, mr, te, ta, kn };

@@ -18,5 +18,14 @@
     { "source": "/api/prediction/games/:id/history", "destination": "https://predictsim-prediction-service.onrender.com/games/:id/history" },
     { "source": "/api/prediction/predictions", "destination": "https://predictsim-prediction-service.onrender.com/predictions" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/apk/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "application/vnd.android.package-archive" },
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ]
+    }
   ]
 }

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.predictsim.player",
+      "sha256_cert_fingerprints": [
+        "19:76:99:54:26:6A:C3:A1:4E:8C:4F:32:EF:95:BF:00:BF:7B:32:54:13:38:51:11:68:86:51:72:0E:03:1F:E3"
+      ]
+    }
+  }
+]

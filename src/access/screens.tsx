@@ -176,6 +176,7 @@ export function RegisterScreen({ onPassword }: { onPassword: () => void }) {
   const [number, setNumber] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const apkUrl = useApkUrl(agentCode);
 
   useEffect(() => {
     if (!agentCode) return;
@@ -211,9 +212,36 @@ export function RegisterScreen({ onPassword }: { onPassword: () => void }) {
       ) : (
         <p className="access__sub">{tx('noAgent')}</p>
       )}
+      {apkUrl && (
+        <a className="access__cta access__cta--secondary" href={apkUrl} download>
+          <span aria-hidden="true">⬇</span> {tx('installApp')}
+        </a>
+      )}
       <button type="button" className="access__link" onClick={onPassword}>
         {tx('havePassword')}
       </button>
     </Frame>
   );
+}
+
+/** The Agent's own APK, offered only in a plain Android browser. Checked with a
+ *  HEAD request for the real content type: the site's SPA fallback answers 200
+ *  (with the app's HTML) for a file that doesn't exist, so status alone would
+ *  show a download button that downloads a web page. */
+function useApkUrl(agentCode: string | null): string | null {
+  const [url, setUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const installed =
+      window.matchMedia('(display-mode: standalone)').matches || document.referrer.startsWith('android-app://');
+    if (!agentCode || installed || !/Android/i.test(navigator.userAgent)) return;
+    const candidate = `/apk/${agentCode}.apk`;
+    let cancelled = false;
+    fetch(candidate, { method: 'HEAD' })
+      .then((r) => !cancelled && r.ok && r.headers.get('content-type')?.includes('android.package-archive') && setUrl(candidate))
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [agentCode]);
+  return url;
 }
