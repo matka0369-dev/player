@@ -441,4 +441,26 @@ export const api = {
    *  "chart" button. `limit` defaults to 45 days server-side. */
   gameHistory: (gameId: string, limit?: number) =>
     predictionRequest<HistoryRound[]>(`/games/${gameId}/history${limit ? `?limit=${limit}` : ''}`),
+
+  // ---- Link + PIN sign-in (no password; see src/access) ----
+  // Errors here are stable machine codes in the message ("link_invalid",
+  // "wrong_pin:3", "locked"…), not prose — the screens map them to the
+  // player's own language.
+
+  /** Redeem a one-time link, set a PIN, enroll this phone. */
+  enter: (token: string, pin: string) =>
+    predictionRequest<{ user: AuthUser; deviceId: string; deviceKey: string }>('/auth/enter', {
+      method: 'POST',
+      body: JSON.stringify({ token, pin }),
+    }),
+
+  pinLogin: (deviceId: string, deviceKey: string, pin: string) =>
+    predictionRequest<{ user: AuthUser }>('/auth/pin-login', {
+      method: 'POST',
+      body: JSON.stringify({ deviceId, deviceKey, pin }),
+    }),
+
+  /** The WhatsApp number behind an Agent's invite code. */
+  joinInfo: (code: string) =>
+    predictionRequest<{ agentName: string; whatsappNumber: string }>(`/join/${encodeURIComponent(code)}`),
 };

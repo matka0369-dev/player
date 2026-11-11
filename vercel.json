@@ -4,6 +4,7 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/prediction/auth/:path*", "destination": "https://predictsim-prediction-service.onrender.com/auth/:path*" },
+    { "source": "/api/prediction/join/:code", "destination": "https://predictsim-prediction-service.onrender.com/join/:code" },
     { "source": "/api/prediction/users/:id", "destination": "https://predictsim-prediction-service.onrender.com/users/:id" },
     { "source": "/api/prediction/rates/meta", "destination": "https://predictsim-prediction-service.onrender.com/rates/meta" },
     { "source": "/api/prediction/rates/me", "destination": "https://predictsim-prediction-service.onrender.com/rates/me" },

@@ -1,0 +1,129 @@
+/* Link + PIN sign-in screens. Lives here rather than in shared/styles.css,
+   which is vendored from the monorepo and overwritten on sync. Sized for
+   thumbs and weak eyes: big targets, big digits, little text. */
+
+.access {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px 16px;
+  text-align: center;
+}
+.access__mark {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.access__title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+.access__sub {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 0;
+  max-width: 22rem;
+}
+.access__error {
+  color: var(--danger);
+  font-weight: 600;
+  min-height: 1.4em;
+  margin: 0;
+}
+
+.pin-dots {
+  display: flex;
+  gap: 18px;
+  margin: 4px 0;
+}
+.pin-dots__dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+}
+.pin-dots__dot--filled {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.pin-dots--shake {
+  animation: pin-shake 0.35s;
+}
+@keyframes pin-shake {
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 76px);
+  gap: 12px;
+}
+.pin-pad__key {
+  height: 76px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pin-pad__key:active:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.pin-pad__key:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.pin-pad__key--ghost {
+  border-color: transparent;
+  background: transparent;
+  font-size: 1.5rem;
+}
+
+.access__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 16rem;
+  padding: 18px 24px;
+  border-radius: 14px;
+  background: #1faa59;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+}
+.access__cta:active {
+  filter: brightness(0.92);
+}
+.access__link {
+  background: none;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 8px;
+}
+.access__langs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
